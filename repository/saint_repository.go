@@ -46,3 +46,52 @@ func (pr *SaintRepository) GetSaints() ([]model.Saint, error) {
 
 	return saintList, nil
 }
+
+func (pr *SaintRepository) CreateSaint(saint model.Saint) (int, error) {
+
+	var id int
+	query, err := pr.connection.Prepare("INSERT INTO saint" +
+		"(saint_name, quote)" +
+		"VALUES ($1, $2) RETURNING id")
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	err = query.QueryRow(saint.Name, saint.Quote).Scan(&id)
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	query.Close()
+	return id, nil
+}
+
+func (pr *SaintRepository) GetSaintById(id_saint int) (*model.Saint, error) {
+
+	query, err := pr.connection.Prepare("SELECT * FROM saint WHERE id = $1")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var saint model.Saint
+
+	err = query.QueryRow(id_saint).Scan(
+		&saint.ID,
+		&saint.Name,
+		&saint.Quote,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	query.Close()
+	return &saint, nil
+}

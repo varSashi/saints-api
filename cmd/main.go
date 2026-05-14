@@ -31,6 +31,8 @@ func main() {
 	})
 
 	server.GET("/saints", SaintController.GetSaints)
+	server.POST("/saint", SaintController.CreateSaint)
+	server.GET("/saint/:saintId", SaintController.GetSaintById)
 
 	server.Run(":8000")
 }
