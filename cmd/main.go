@@ -31,6 +31,7 @@ func main() {
 	})
 
 	server.GET("/saints", SaintController.GetSaints)
+	server.GET("/saints/random", SaintController.GetRandomSaint)
 	server.POST("/saint", SaintController.CreateSaint)
 	server.GET("/saint/:saintId", SaintController.GetSaintById)
 

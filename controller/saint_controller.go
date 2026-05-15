@@ -1,14 +1,13 @@
 package controller
 
 import (
+	"math/rand"
+	"net/http"
 	"saints-api/model"
 	"saints-api/usecase"
-
-	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
-
-	"strconv"
 )
 
 type saintController struct {
@@ -84,4 +83,24 @@ func (p *saintController) GetSaintById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, saint)
+}
+
+func (p *saintController) GetRandomSaint(ctx *gin.Context) {
+
+	saints, err := p.saintUseCase.GetSaints()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if len(saints) == 0 {
+		response := model.Response{
+			Message: "No saints found",
+		}
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+
+	randomIndex := rand.Intn(len(saints))
+	ctx.JSON(http.StatusOK, saints[randomIndex])
 }
