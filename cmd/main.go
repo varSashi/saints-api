@@ -3,13 +3,21 @@ package main
 import (
 	"saints-api/controller"
 	"saints-api/db"
+	"saints-api/middleware"
 	"saints-api/repository"
 	"saints-api/usecase"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found, relying on environment variables")
+	}
+
 	server := gin.Default()
 
 	dbConnection, err := db.ConnectDB()
@@ -32,7 +40,14 @@ func main() {
 
 	server.GET("/saints", SaintController.GetSaints)
 	server.GET("/saints/random", SaintController.GetRandomSaint)
-	server.POST("/saint", SaintController.CreateSaint)
+	
+	// Protected POST route
+	authorized := server.Group("/")
+	authorized.Use(middleware.APIKeyAuth())
+	{
+		authorized.POST("/saint", SaintController.CreateSaint)
+	}
+	
 	server.GET("/saint/:saintId", SaintController.GetSaintById)
 
 	server.Run(":8000")
